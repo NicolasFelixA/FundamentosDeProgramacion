@@ -1,0 +1,6 @@
+public class Search{
+    public static void main(String a[]){
+        int [] lista = new int [5];
+        lista = [1, 2 ,3, 4, 5];
+    }
+}
