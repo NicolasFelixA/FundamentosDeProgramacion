@@ -6,7 +6,7 @@ public class Product {
     private double price;
     private String description;
     private String category;
-    private String image;
+    String image;
     private Rating rating;
 
     // Constructor

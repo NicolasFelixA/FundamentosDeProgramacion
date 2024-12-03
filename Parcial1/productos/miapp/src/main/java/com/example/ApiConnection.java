@@ -6,7 +6,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ApiConnection {
     private static final String API_URL = "https://fakestoreapi.com/products/";
@@ -71,4 +75,56 @@ public class ApiConnection {
         }
         return false;
     }
+
+    public static String ImprimirCategorias(Scanner scan) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(API_URL))
+                    .GET()
+                    .build();
+    
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    
+            if (response.statusCode() == 200) {
+                // Convertir JSON a una lista de productos
+                ArrayList<Product> productos = gson.fromJson(response.body(), new TypeToken<ArrayList<Product>>() {}.getType());
+    
+                // Extraer categorías únicas
+                Set<String> categorias = productos.stream()
+                        .map(Product::getCategory)
+                        .collect(Collectors.toSet());
+    
+                // Imprimir las categorías
+                System.out.println("Categorías disponibles:");
+                int count = 1;
+                for (String categoria : categorias) {
+                    System.out.println(count + ") " + categoria);
+                    count++;
+                }
+                System.out.println(0 + ") Salir de categorías");
+    
+                // Leer elección del usuario
+                int eleccion = scan.nextInt();
+    
+                if (eleccion > count || eleccion < 0) {
+                    System.out.println("Por favor, ingrese un número válido.");
+                    return ImprimirCategorias(scan); // Recursión para repetir el proceso
+                } else if (eleccion == 0) {
+                    return null; // Salir de categorías
+                } else {
+                    // Convertir la elección en el nombre de la categoría
+                    return new ArrayList<>(categorias).get(eleccion - 1); // Convertimos Set a List para indexar
+                }
+            } else {
+                System.out.println("Error al obtener categorías. Código de estado: " + response.statusCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+        return null; // Retornar null si ocurre un error
+    }
+    
 }
+
+

@@ -9,58 +9,36 @@ public class Main {
     private static Scanner scan = new Scanner(System.in);
 
     public static void main(String[] args) {
-        mostrarMenu();
-        ElegirOpcion();
+        gestionarMenu();
     }
 
-    private static void mostrarMenu(){   
-        System.out.println("*********************************************************");
-        System.out.println("* Bienvenido al Catálogo de Productos.                 *");
-        System.out.println("* Selecciona una de las siguientes opciones:           *");
-        System.out.println("* 1) Buscar Productos                                  *");
-        System.out.println("* 2) Agregar Producto                                  *");
-        System.out.println("* 3) Eliminar Producto                                 *");
-        System.out.println("* 0) Salir                                             *");
-        System.out.println("*********************************************************");
-    }
-
-    private static void ElegirOpcion(){    
-        System.out.print("Elige una opción: ");
-        int opcionElegida = scan.nextInt();
-        switch (opcionElegida) {
-            case 0:
-                System.out.println("Saliendo de la operacion.");
-            break;
-            case 1:
-                BuscarProducto();
-            break;
-            case 2:
-                AgregarProducto();
-            break;
-            case 3:
-                BorrarProducto();
-            break;
-            default:
-                System.out.println("Opción no válida. Inténtalo de nuevo.");
-                ElegirOpcion();
-            break;
-        }
+    private static void gestionarMenu() {
+        int opcion;
+        do {
+            System.out.println("*********************************************************");
+            System.out.println("* Bienvenido al Catálogo de Productos.                  *");
+            System.out.println("* Selecciona una de las siguientes opciones:            *");
+            System.out.println("* 1) Buscar Productos                                   *");
+            System.out.println("* 2) Agregar Producto                                   *");
+            System.out.println("* 3) Eliminar Producto                                  *");
+            System.out.println("* 0) Salir                                              *");
+            System.out.println("*********************************************************");
+            System.out.print("Elige una opción: ");
+            
+            opcion = scan.nextInt();
+            
+    
+            switch (opcion) {
+                case 0 -> System.out.println("Saliendo de la aplicación...");
+                case 1 -> BuscarProducto();
+                case 2 -> AgregarProducto();
+                case 3 -> BorrarProducto();
+                default -> System.out.println("Opción no válida. Inténtalo de nuevo.");
+            }
+        } while (opcion != 0); 
     }
 
     private static void BuscarProducto(){
-        BuscarMenu();
-    }
-        
-
-    private static void AgregarProducto(){
-        AgregarProductoMenu();
-    }
-
-    private static void BorrarProducto(){
-        BorrarProductoMenu();
-    }
-
-    private static void BuscarMenu(){
         System.out.println("1) Buscar productos por: ");
         System.out.println("a) ID");
         System.out.println("b) Categoria");
@@ -70,7 +48,7 @@ public class Main {
         ElegirBuscador();
     }
 
-    private static void AgregarProductoMenu() {
+    private static void AgregarProducto(){
         System.out.println("Completa los campos para agregar el producto:");
         System.out.println("Ingresa el nombre del producto: ");
         scan.nextLine();
@@ -109,28 +87,9 @@ public class Main {
         System.out.println("Producto agregado con éxito.");
     }
 
-    private static void BorrarProductoMenu(){
+    private static void BorrarProducto(){
         System.out.print("Ingresa el ID del producto a borrar: ");
-        int id = scan.nextInt();
-        scan.nextLine(); 
-        
-        Product producto = productos.stream()
-                                      .filter(p -> p.getId() == id)
-                                      .findFirst()
-                                      .orElse(null);
-        
-        if (producto != null) {
-            System.out.print("¿Estás seguro de que quieres borrar el producto? (s/n): ");
-            String confirmacion = scan.nextLine();
-            if (confirmacion.equalsIgnoreCase("s")) {
-                productos.remove(producto);
-                System.out.println("Producto borrado con éxito.");
-            } else {
-                System.out.println("Operación cancelada.");
-            }
-        } else {
-            System.out.println("No se encontró un producto con ese ID.");
-        }
+        int id = scan.nextInt(); 
     }
     
     
@@ -149,13 +108,15 @@ public class Main {
                     System.out.println("Producto encontrado:");
                     System.out.println("Nombre: " + producto.getTitle());
                     System.out.println("Precio: " + producto.getPrice() + "$");
+                    PDFYesOrNo(producto);
+
                 } else {
                     System.out.println("No se encontró un producto con el ID proporcionado.");
                 }
                 break;
             case 'b':
                 System.out.println("Has elegido buscar por categoria.");
-                System.out.println("Escoge una categoria:");
+                Categorias();
                 break;
             case 'c':
                 System.out.println("Has elegido buscar por nombre.");
@@ -164,12 +125,32 @@ public class Main {
                 break;
             case 'd':
                 System.out.println("Saliendo del buscador de productos.");
-                ElegirOpcion();
+                gestionarMenu();
                 break;
             default:
                 System.out.println("Opción no válida. Inténtalo de nuevo.");
                 ElegirBuscador(); 
                 break;
         }
+    }
+    private static void Categorias(){
+        System.out.println("Escoge una categoria:");
+        String categoriaElegida = ApiConnection.ImprimirCategorias(scan);
+        System.out.println(categoriaElegida);
+    }
+
+    private static void PDFYesOrNo(Product producto){
+        System.out.println("Quieres descargar el PDF de este articulo? (s/n)");
+        String confirmacion = scan.nextLine();
+            if (confirmacion.equalsIgnoreCase("s")) {
+                ProductPDFCreator.guardaPDFDeProducto(producto);
+                gestionarMenu();
+            } else if(confirmacion.equalsIgnoreCase("n")){
+                System.out.println("Volviendo al menu principal...");
+                gestionarMenu();
+            }else{
+                System.out.println("Ingresa un valor correcto: (s/n)");
+                PDFYesOrNo(producto);
+            }
     }
 }
