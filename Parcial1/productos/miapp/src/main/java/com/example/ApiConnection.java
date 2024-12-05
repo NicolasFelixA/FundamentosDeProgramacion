@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,7 +55,7 @@ public class ApiConnection {
         Product productoAEliminar = imprimirPorID(id);
         if (productoAEliminar != null) {
             productosLocales.remove(productoAEliminar);
-            System.out.println("Producto eliminado localmente.");     
+            System.out.println("Producto eliminado localmente.");
         } else {
             System.out.println("No se encontró el producto con el ID proporcionado.");
         }
@@ -68,7 +67,7 @@ public class ApiConnection {
                 .collect(Collectors.toSet());
     }
     
-   public static ArrayList<Product> buscarProductosPorCategoria(String categoria) {
+    public static ArrayList<Product> buscarProductosPorCategoria(String categoria) {
         ArrayList<Product> productosFiltrados = new ArrayList<>();
     
         for (Product producto : productosLocales) {
