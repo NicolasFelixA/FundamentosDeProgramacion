@@ -1,6 +1,7 @@
 package com.example;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Main {
         private static ArrayList<Product> productos = new ArrayList<>();
@@ -9,6 +10,7 @@ public class Main {
     private static Scanner scan = new Scanner(System.in);
 
     public static void main(String[] args) {
+        ApiConnection.inicializarProductos();
         gestionarMenu();
     }
 
@@ -38,7 +40,7 @@ public class Main {
         } while (opcion != 0); 
     }
 
-    private static void BuscarProducto(){
+    private static void BuscarProducto(){ 
         System.out.println("1) Buscar productos por: ");
         System.out.println("a) ID");
         System.out.println("b) Categoria");
@@ -79,17 +81,20 @@ public class Main {
         lastProductId++;
         
         Rating rating = new Rating(calificacion, votos);
-        
         Product producto = new Product(lastProductId, nombre, precio, descripcion, categoria, imagen, rating);
-        
+        ApiConnection.AgregarProducto(producto);
+
         productos.add(producto);
         
         System.out.println("Producto agregado con éxito.");
     }
 
-    private static void BorrarProducto(){
+    private static void BorrarProducto() {
         System.out.print("Ingresa el ID del producto a borrar: ");
-        int id = scan.nextInt(); 
+        int id = scan.nextInt();
+        scan.nextLine(); 
+        
+        ApiConnection.EliminarProducto(id);
     }
     
     
@@ -98,47 +103,103 @@ public class Main {
         char c = scan.next().charAt(0);
         switch (c) {
             case 'a':
-                System.out.println("Has elegido buscar por ID.");
-                System.out.print("Ingresa su Id: ");
-                int id = scan.nextInt();
-                scan.nextLine(); 
-                System.out.println("*********************************************************");
-                Product producto = ApiConnection.ImprimirPorID(id);
-                if (producto != null) {
-                    System.out.println("Producto encontrado:");
-                    System.out.println("Nombre: " + producto.getTitle());
-                    System.out.println("Precio: " + producto.getPrice() + "$");
-                    PDFYesOrNo(producto);
-
-                } else {
-                    System.out.println("No se encontró un producto con el ID proporcionado.");
-                }
+                BuscarPorID();
                 break;
             case 'b':
-                System.out.println("Has elegido buscar por categoria.");
-                Categorias();
+                BuscarPorCategorias();
+                
                 break;
             case 'c':
-                System.out.println("Has elegido buscar por nombre.");
-                System.out.println("Ingresa su nombre: ");
-
+                BuscarPorNombre();
                 break;
             case 'd':
                 System.out.println("Saliendo del buscador de productos.");
-                gestionarMenu();
                 break;
             default:
                 System.out.println("Opción no válida. Inténtalo de nuevo.");
-                ElegirBuscador(); 
+                ElegirBuscador();
                 break;
         }
     }
-    private static void Categorias(){
-        System.out.println("Escoge una categoria:");
-        String categoriaElegida = ApiConnection.ImprimirCategorias(scan);
-        System.out.println(categoriaElegida);
+
+    private static void BuscarPorID(){
+        System.out.println("Has elegido buscar por ID.");
+        System.out.print("Ingresa su Id: ");
+        int id = scan.nextInt();
+        scan.nextLine();
+        System.out.println("*********************************************************");
+        Product producto = ApiConnection.imprimirPorID(id);
+        if (producto != null) {
+            System.out.println("Producto encontrado:");
+            System.out.println("Nombre: " + producto.getTitle());
+            System.out.println("Precio: " + producto.getPrice() + "$");
+            PDFYesOrNo(producto);
+            } else {
+                System.out.println("No se encontró un producto con el ID proporcionado.");
+            }
     }
 
+    private static void BuscarPorCategorias() {
+        System.out.println("Has elegido buscar por categoría.");
+        Set<String> categorias = ApiConnection.obtenerCategoriasLocales();
+        
+        if (categorias.isEmpty()) {
+            System.out.println("No hay categorías disponibles.");
+            return; // Salir si no hay categorías
+        }
+        
+        System.out.println("Categorías disponibles:");
+        int count = 1;
+        ArrayList<String> listaCategorias = new ArrayList<>(categorias); // Convertir a lista para seleccionar por índice
+        for (String categoria : listaCategorias) {
+            System.out.println(count + ") " + categoria);
+            count++;
+        }
+        
+        System.out.print("Elige el número de la categoría: ");
+        int opcion = scan.nextInt();
+        scan.nextLine(); // Consumir el salto de línea pendiente
+        
+        if (opcion > 0 && opcion <= listaCategorias.size()) {
+            String categoriaSeleccionada = listaCategorias.get(opcion - 1);
+            ArrayList<Product> productosEnCategoria = ApiConnection.buscarProductosPorCategoria(categoriaSeleccionada);
+            
+            if (!productosEnCategoria.isEmpty()) {
+                System.out.println("Productos en la categoría '" + categoriaSeleccionada + "':");
+                for (Product producto : productosEnCategoria) {
+                    System.out.println("ID: " + producto.getId());
+                    System.out.println("Nombre: " + producto.getTitle());
+                    System.out.println("Precio: " + producto.getPrice() + "$");
+                    System.out.println("---------------------------------------------------");
+                }
+            } else {
+                System.out.println("No hay productos disponibles en la categoría seleccionada.");
+            }
+        } else {
+            System.out.println("Opción no válida. Volviendo al menú principal.");
+        }
+    }
+
+    private static void BuscarPorNombre(){
+        System.out.println("Has elegido buscar por nombre.");
+    System.out.print("Ingresa el nombre o parte del nombre del producto: ");
+    scan.nextLine(); // Consumir el salto de línea pendiente
+    String nombre = scan.nextLine();
+
+    ArrayList<Product> productosEncontrados = ApiConnection.buscarProductosPorNombre(nombre);
+    if (!productosEncontrados.isEmpty()) {
+        System.out.println("Productos encontrados:");
+        for (Product producto : productosEncontrados) {
+            System.out.println("ID: " + producto.getId());
+            System.out.println("Nombre: " + producto.getTitle());
+            System.out.println("Precio: " + producto.getPrice() + "$");
+            System.out.println("Categoría: " + producto.getCategory());
+            System.out.println("---------------------------------------------------");
+        }
+    } else {
+        System.out.println("No se encontraron productos con el nombre proporcionado.");
+    }
+    }
     private static void PDFYesOrNo(Product producto){
         System.out.println("Quieres descargar el PDF de este articulo? (s/n)");
         String confirmacion = scan.nextLine();
