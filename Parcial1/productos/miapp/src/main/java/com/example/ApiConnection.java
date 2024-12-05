@@ -52,15 +52,13 @@ public class ApiConnection {
         System.out.println("Producto agregado localmente.");
     }
 
-    public static boolean EliminarProducto(int id) {
+    public static void EliminarProducto(int id) {
         Product productoAEliminar = imprimirPorID(id);
         if (productoAEliminar != null) {
             productosLocales.remove(productoAEliminar);
-            System.out.println("Producto eliminado localmente.");
-            return true;
+            System.out.println("Producto eliminado localmente.");     
         } else {
             System.out.println("No se encontró el producto con el ID proporcionado.");
-            return false;
         }
     }
 
