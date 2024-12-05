@@ -102,23 +102,14 @@ public class Main {
         System.out.print("Elige una opción (a, b, c, d): ");
         char c = scan.next().charAt(0);
         switch (c) {
-            case 'a':
-                BuscarPorID();
-                break;
-            case 'b':
-                BuscarPorCategorias();
-                
-                break;
-            case 'c':
-                BuscarPorNombre();
-                break;
-            case 'd':
-                System.out.println("Saliendo del buscador de productos.");
-                break;
-            default:
+            case 'a' -> BuscarPorID();
+            case 'b' -> BuscarPorCategorias();
+            case 'c' -> BuscarPorNombre();
+            case 'd' -> System.out.println("Saliendo del buscador de productos.");
+            default -> {
                 System.out.println("Opción no válida. Inténtalo de nuevo.");
                 ElegirBuscador();
-                break;
+            }
         }
     }
 
@@ -145,12 +136,12 @@ public class Main {
         
         if (categorias.isEmpty()) {
             System.out.println("No hay categorías disponibles.");
-            return; // Salir si no hay categorías
+            return; 
         }
         
         System.out.println("Categorías disponibles:");
         int count = 1;
-        ArrayList<String> listaCategorias = new ArrayList<>(categorias); // Convertir a lista para seleccionar por índice
+        ArrayList<String> listaCategorias = new ArrayList<>(categorias); 
         for (String categoria : listaCategorias) {
             System.out.println(count + ") " + categoria);
             count++;
@@ -182,36 +173,39 @@ public class Main {
 
     private static void BuscarPorNombre(){
         System.out.println("Has elegido buscar por nombre.");
-    System.out.print("Ingresa el nombre o parte del nombre del producto: ");
-    scan.nextLine(); // Consumir el salto de línea pendiente
-    String nombre = scan.nextLine();
+        System.out.print("Ingresa el nombre o parte del nombre del producto: ");
+        scan.nextLine(); 
+        String nombre = scan.nextLine();
 
-    ArrayList<Product> productosEncontrados = ApiConnection.buscarProductosPorNombre(nombre);
-    if (!productosEncontrados.isEmpty()) {
-        System.out.println("Productos encontrados:");
-        for (Product producto : productosEncontrados) {
-            System.out.println("ID: " + producto.getId());
-            System.out.println("Nombre: " + producto.getTitle());
-            System.out.println("Precio: " + producto.getPrice() + "$");
-            System.out.println("Categoría: " + producto.getCategory());
-            System.out.println("---------------------------------------------------");
+        ArrayList<Product> productosEncontrados = ApiConnection.buscarProductosPorNombre(nombre);
+        if (!productosEncontrados.isEmpty()) {
+            System.out.println("Productos encontrados:");
+            for (Product producto : productosEncontrados) {
+                System.out.println("ID: " + producto.getId());
+                System.out.println("Nombre: " + producto.getTitle());
+                System.out.println("Precio: " + producto.getPrice() + "$");
+                System.out.println("Categoría: " + producto.getCategory());
+                System.out.println("---------------------------------------------------");
+            }
+        } else {
+            System.out.println("No se encontraron productos con el nombre proporcionado.");
         }
-    } else {
-        System.out.println("No se encontraron productos con el nombre proporcionado.");
     }
-    }
-    private static void PDFYesOrNo(Product producto){
-        System.out.println("Quieres descargar el PDF de este articulo? (s/n)");
+    
+    private static void PDFYesOrNo(Product producto) {
+        System.out.print("¿Quieres descargar el PDF de este artículo? (s/n): ");
         String confirmacion = scan.nextLine();
-            if (confirmacion.equalsIgnoreCase("s")) {
+        switch (confirmacion.toLowerCase()) {
+            case "s" -> {
                 ProductPDFCreator.guardaPDFDeProducto(producto);
-                gestionarMenu();
-            } else if(confirmacion.equalsIgnoreCase("n")){
-                System.out.println("Volviendo al menu principal...");
-                gestionarMenu();
-            }else{
-                System.out.println("Ingresa un valor correcto: (s/n)");
+                System.out.println("PDF descargado exitosamente.");
+            }
+            case "n" -> System.out.println("Volviendo al menú principal...");
+            default -> {
+                System.out.println("Opción no válida.");
                 PDFYesOrNo(producto);
             }
+        }
     }
+    
 }
