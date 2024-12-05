@@ -68,17 +68,29 @@ public class ApiConnection {
                 .collect(Collectors.toSet());
     }
     
-    public static ArrayList<Product> buscarProductosPorCategoria(String categoria) {
-        return productosLocales.stream()
-                .filter(producto -> producto.getCategory().equalsIgnoreCase(categoria))
-                .collect(Collectors.toCollection(ArrayList::new));
+   public static ArrayList<Product> buscarProductosPorCategoria(String categoria) {
+        ArrayList<Product> productosFiltrados = new ArrayList<>();
+    
+        for (Product producto : productosLocales) {
+            if (producto.getCategory().equalsIgnoreCase(categoria)) {
+                productosFiltrados.add(producto);
+            }
+        }
+    
+        return productosFiltrados;
     }
     
     public static ArrayList<Product> buscarProductosPorNombre(String nombre) {
-        // Filtrar los productos cuyo título contenga el nombre ingresado (ignorar mayúsculas/minúsculas)
-        return productosLocales.stream()
-                .filter(producto -> producto.getTitle().toLowerCase().contains(nombre.toLowerCase()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Product> productosFiltrados = new ArrayList<>();
+        String nombreLower = nombre.toLowerCase();
+    
+        for (Product producto : productosLocales) {
+            if (producto.getTitle().toLowerCase().contains(nombreLower)) {
+                productosFiltrados.add(producto);
+            }
+        }
+    
+        return productosFiltrados;
     }
 }
 
